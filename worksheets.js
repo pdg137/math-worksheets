@@ -24,6 +24,11 @@ function polynomial(variable, coefficients) {
 
 function problem_linear(variable) {
   var answer = random(15) - 5
+  var add_constant_0 = 0;
+  if(random(4) == 0)
+  {
+    add_constant_0 = random(10)-5
+  }
   var multiply_by = random(10)+1
   var add_x = random(6) - 3
   var add_constant;
@@ -40,19 +45,26 @@ function problem_linear(variable) {
     multiply_by + add_x
   ]
   var right_p = [
-    answer*multiply_by + add_constant,
+    (answer+add_constant_0)*multiply_by + add_constant + add_x*add_constant_0,
     add_x
   ]
 
-  if(random(2) == 0) {
-    var tmp = left_p;
-    left_p = right_p;
-    right_p = tmp;
+  var left_variable = variable;
+  if(add_constant_0 != 0)
+  {
+    left_variable = '('+polynomial(variable,[add_constant_0,1])+')'
   }
 
-  return polynomial(variable,left_p) +
-    ' = '+
-    polynomial(variable,right_p)
+  left_s = polynomial(left_variable,left_p)
+  right_s = polynomial(variable,right_p)
+
+  if(random(2) == 0) {
+    var tmp = left_s;
+    left_s = right_s;
+    right_s = tmp;
+  }
+
+  return left_s + ' = ' + right_s
 }
 
 function generate() {
@@ -61,7 +73,7 @@ function generate() {
 
   var variables = ['a','b','c','x','y','z']
   var variable = variables[random(variables.length)]
-  $('h1').html('Solve for ``'+variable+'``.')
+  $('h1').html('Solve for ``'+variable+'`` and check.')
   for(var i=0;i<6;i++) {
     $('#problems').append('<li>``'+problem_linear(variable)+'``')
   }
