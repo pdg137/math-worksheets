@@ -22,7 +22,7 @@ function polynomial(variable, coefficients) {
   return sum.replace('+-','-')
 }
 
-function problem_linear_x() {
+function problem_linear(variable) {
   var answer = random(15) - 5
   var multiply_by = random(10)+1
   var add_x = random(6) - 3
@@ -50,16 +50,20 @@ function problem_linear_x() {
     right_p = tmp;
   }
 
-  return polynomial('x',left_p) +
+  return polynomial(variable,left_p) +
     ' = '+
-    polynomial('x',right_p)
+    polynomial(variable,right_p)
 }
 
 function generate() {
   $('#problems').html('')
-  $('h1').html(new Date().toISOString().split('T')[0] + ': solve for ``x``.')
-  for(var i=0;i<12;i++) {
-    $('#problems').append('<li>``'+problem_linear_x()+'``')
+  // new Date().toISOString().split('T')[0]
+
+  var variables = ['a','b','c','x','y','z']
+  var variable = variables[random(variables.length)]
+  $('h1').html('Solve for ``'+variable+'``.')
+  for(var i=0;i<6;i++) {
+    $('#problems').append('<li>``'+problem_linear(variable)+'``')
   }
 }
 
