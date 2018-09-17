@@ -33,7 +33,7 @@ function add_parens(e, operator)
 {
   if(operator == '^')
   {
-    if(e.last == 'sqrt' || e.last == '+' || e.last == '*' || e.last == '^')
+    if(e.last == 'sqrt' || e.last == '+' || e.last == '*' || e.last == '^' || e.last == '/')
       return parens(e.left_side)
   }
   if(operator == '*')
@@ -80,12 +80,28 @@ function apply_square(e) {
 
 function apply_sqrt(e) {
   var l = add_parens(e, 'sqrt')
-
   return {left_side: 'sqrt(' + l + ')', value: Math.sqrt(e.value), last: 'sqrt'}
+}
+
+function apply_divide(e) {
+  var l = add_parens(e, '/')
+  var factors = []
+  for(var n = 2; n <= Math.abs(e.value); n++) {
+    if(e.value % n == 0)
+      factors.push(n)
+  }
+  if(factors.length == 0)
+    factors = [1]
+
+  var factor = factors[random(factors.length)]
+  return {left_side: '(' + l + ')/'+factor, value: e.value/factor, last: '/'}
 }
 
 function apply_random_operation(equation) {
   var operations = [apply_times, apply_add]
+
+  if(equation.value > 1 || equation.value < -1)
+    operations.push(apply_divide)
 
   if(Math.floor(Math.sqrt(equation.value)) == Math.sqrt(equation.value) &&
     equation.last != '^')
