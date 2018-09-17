@@ -22,6 +22,97 @@ function polynomial(variable, coefficients) {
   return sum.replace('+-','-')
 }
 
+function parens(exp) {
+  if(exp.length > 1)
+    return '('+exp+')'
+  else
+    return exp
+}
+
+function add_parens(e, operator)
+{
+  if(operator == '^')
+  {
+    if(e.last == 'sqrt' || e.last == '+' || e.last == '*' || e.last == '^')
+      return parens(e.left_side)
+  }
+  if(operator == '*')
+  {
+    if(e.last == '+')
+      return parens(e.left_side)
+  }
+
+  if(random(2) == 0)
+    return parens(e.left_side)
+
+  return e.left_side
+}
+
+function apply_times(e) {
+  var k = random(9)+1
+  var l = add_parens(e, '*')
+
+  return {left_side: '' + k + '*' + l, value: k*e.value, last: '*'}
+}
+
+function apply_add(e) {
+  var k = random(20)
+
+  var l = e.left_side;
+
+  var ret;
+  if(random(2) == 0)
+  {
+    ret = l + ' + ' + k
+  }
+  else
+  {
+    ret = k + ' + ' + l
+  }
+  return {left_side: ret, value: e.value + k, last: '+'}
+}
+
+function apply_square(e) {
+  var l = add_parens(e,'^')
+
+  return {left_side: l + '^2', value: e.value*e.value, last: '^'}
+}
+
+function apply_sqrt(e) {
+  var l = add_parens(e, 'sqrt')
+
+  return {left_side: 'sqrt(' + l + ')', value: Math.sqrt(e.value), last: 'sqrt'}
+}
+
+function apply_random_operation(equation) {
+  var operations = [apply_times, apply_add]
+
+  if(Math.floor(Math.sqrt(equation.value)) == Math.sqrt(equation.value) &&
+    equation.last != '^')
+    operations.push(apply_sqrt)
+
+  if(equation.last != 'sqrt')
+    operations.push(apply_square)
+
+  var operation = operations[random(operations.length)]
+  return operation(equation)
+}
+
+function problem_undo(variable) {
+  var equation = {left_side: variable, value: random(15) - 5, last: null}
+
+  var iterations = random(6)+1;
+  for(var i = 0; i < iterations; i++)
+  {
+    new_equation = apply_random_operation(equation)
+    if(Math.abs(new_equation.value) > 200)
+      break
+    equation = new_equation
+  }
+
+  return equation.left_side + ' = ' + equation.value
+}
+
 function problem_linear(variable) {
   var answer = random(15) - 5
   var add_constant_0 = 0;
@@ -75,7 +166,12 @@ function generate() {
   var variable = variables[random(variables.length)]
   $('h1').html('Solve for ``'+variable+'`` and check.')
   for(var i=0;i<6;i++) {
-    $('#problems').append('<li>``'+problem_linear(variable)+'``')
+    var problem
+    if(random(2) == 0)
+      problem = problem_undo(variable)
+    else
+      problem = problem_linear(variable)
+    $('#problems').append('<li>``'+problem+'``')
   }
 }
 
